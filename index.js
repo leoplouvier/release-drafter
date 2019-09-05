@@ -74,9 +74,14 @@ module.exports = app => {
     })
 
     const diff = (oldStr, newStr) => {
-      let diff = oldStr.split('\n')
+      let diff = oldStr.split('\n'),
+        insertedElement = []
       newStr.split('\n').forEach((element, index) => {
-        if (!diff.map(str => str.trim()).includes(element.trim())) {
+        if (
+          !diff.map(str => str.trim()).includes(element.trim()) ||
+          insertedElement.includes(element)
+        ) {
+          insertedElement.push(element)
           diff = diff
             .slice(0, index)
             .concat(element)
