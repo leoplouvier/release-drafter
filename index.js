@@ -73,6 +73,19 @@ module.exports = app => {
       mergedPullRequests: sortedMergedPullRequests
     })
 
+    const diff = (oldStr, newStr) => {
+      let diff = oldStr.split('\n')
+      newStr.split('\n').forEach((element, index) => {
+        if (!diff.map(str => str.trim()).includes(element.trim())) {
+          diff = diff
+            .slice(0, index)
+            .concat(element)
+            .concat(diff.slice(index, diff.length))
+        }
+      })
+      return diff.join('\n')
+    }
+
     if (!draftRelease) {
       log({ app, context, message: 'Creating new draft release' })
       await context.github.repos.createRelease(
@@ -88,7 +101,7 @@ module.exports = app => {
       await context.github.repos.updateRelease(
         context.repo({
           release_id: draftRelease.id,
-          body: releaseInfo.body
+          body: diff(draftRelease.body, releaseInfo.body)
         })
       )
     }
